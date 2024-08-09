@@ -49,6 +49,18 @@ function App() {
   // removeItem(key)
   // clear(): clear all
 
+  // examples:
+
+  // 1. simple data
+  localStorage.setItem('userName', 'Hussain Hamim')
+  const username = localStorage.getItem('userName')
+  console.log(username)
+
+  // 1. object
+  localStorage.setItem('person', JSON.stringify({name: 'Hussain', age: 22}))
+  const person = localStorage.getItem('person')
+  console.log(JSON.parse(person))
+
   return <Greeting />
 }
 
