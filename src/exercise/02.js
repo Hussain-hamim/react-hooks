@@ -8,21 +8,33 @@ function Greeting({initialName = ''}) {
     window.localStorage.getItem('name') ?? initialName,
   )
 
+  const [color, setColor] = React.useState(
+    window.localStorage.getItem('color' ?? 'white'),
+  )
+
   React.useEffect(() => {
     window.localStorage.setItem('name', name)
+    window.localStorage.setItem('color', color)
   })
+
+  function changeColor() {
+    setColor(color === 'white' ? 'gray' : 'white')
+  }
+
+  console.log(color)
 
   function handleChange(event) {
     setName(event.target.value)
   }
-
   return (
-    <div>
+    <div style={{background: color, height: '100vh'}}>
       <form>
         <label htmlFor="name">Name: </label>
         <input value={name} onChange={handleChange} id="name" />
       </form>
       {name ? <strong>Hello {name}</strong> : 'Please type your name'}
+
+      <button onClick={changeColor}>change color</button>
     </div>
   )
 }
