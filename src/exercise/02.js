@@ -1,6 +1,6 @@
 // useEffect: persistent state
-// 💯 lazy state initialization
-// http://localhost:3000/isolated/final/02.extra-1.js
+// 💯 effect dependencies
+// http://localhost:3000/isolated/final/02.extra-2.js
 
 import * as React from 'react'
 
@@ -11,7 +11,7 @@ function Greeting({initialName = ''}) {
 
   React.useEffect(() => {
     window.localStorage.setItem('name', name)
-  })
+  }, [name])
 
   function handleChange(event) {
     setName(event.target.value)
