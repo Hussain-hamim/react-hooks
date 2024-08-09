@@ -40,6 +40,15 @@ function Greeting({initialName = ''}) {
 }
 
 function App() {
+  // windows.localStorage web storage api that allow you
+  // to store key value pairs in the web browser
+  // the data string, persistent and across multiple session
+  // basic methods:
+  // setItem(key, value)
+  // getItem(key)
+  // removeItem(key)
+  // clear(): clear all
+
   return <Greeting />
 }
 
