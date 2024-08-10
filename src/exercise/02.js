@@ -9,8 +9,11 @@ function useLocalStorageState(
   defaultValue = '',
   // the = {} fixes the error we would get from destructuring when no argument was passed
   // Check https://jacobparis.com/blog/destructure-arguments for a detailed explanation
+
+  // optional options:
   {serialize = JSON.stringify, deserialize = JSON.parse} = {},
 ) {
+  // we passed the "lazy initialization function" to state as initial value
   const [state, setState] = React.useState(() => {
     const valueInLocalStorage = window.localStorage.getItem(key)
     if (valueInLocalStorage) {
@@ -25,6 +28,7 @@ function useLocalStorageState(
     return typeof defaultValue === 'function' ? defaultValue() : defaultValue
   })
 
+  // we are maintaining the previous key or state with useRef(keep value between render and do not cause render):
   const prevKeyRef = React.useRef(key)
 
   // Check the example at src/examples/local-state-key-change.js to visualize a key change
