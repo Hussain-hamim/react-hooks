@@ -59,6 +59,21 @@ function Greeting({initialName = ''}) {
 }
 
 function App() {
+  // serialization and deserialization in js:
+  // refer to the way in which we we convert data into a format that cen be easily stored or
+  // transmitted and convert back to original form.
+
+  // 1. obj is serialize into json sting
+  const obj = {name: 'Hussain', age: 22}
+  const serializeObj = JSON.stringify(obj)
+  console.log('object: ', obj)
+  console.log('serialize: ', serializeObj)
+
+  // 2. deserialization is the reverse process
+  const serObj = '{"name":"Hussain","age":22}'
+  const obj2 = JSON.parse(serObj)
+  console.log(obj2)
+
   return <Greeting />
 }
 
