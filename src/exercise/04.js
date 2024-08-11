@@ -1,19 +1,15 @@
 // useState: tic tac toe
-// 💯 preserve state in localStorage
-// http://localhost:3000/isolated/final/04.extra-1.js
+// 💯 useLocalStorageState
+// http://localhost:3000/isolated/final/04.extra-2.js
 
 import * as React from 'react'
+import {useLocalStorageState} from '../utils'
 
 function Board() {
-  const [squares, setSquares] = React.useState(
-    () =>
-      JSON.parse(window.localStorage.getItem('squares')) || Array(9).fill(null),
+  const [squares, setSquares] = useLocalStorageState(
+    'squares',
+    Array(9).fill(null),
   )
-
-  React.useEffect(() => {
-    // we putting the storage code inside effect cuz it's a web api, mean outside of react:
-    window.localStorage.setItem('squares', JSON.stringify(squares))
-  }, [squares])
 
   const nextValue = calculateNextValue(squares)
   const winner = calculateWinner(squares)
