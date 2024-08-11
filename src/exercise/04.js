@@ -11,6 +11,7 @@ function Board() {
   )
 
   React.useEffect(() => {
+    // we putting the storage code inside effect cuz it's a web api, mean outside of react:
     window.localStorage.setItem('squares', JSON.stringify(squares))
   }, [squares])
 
