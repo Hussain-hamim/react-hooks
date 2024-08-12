@@ -1,97 +1,93 @@
 // useState: tic tac toe
-// 💯 add game history feature
-// http://localhost:3000/isolated/final/04.extra-3.js
+// 💯 (alternate) migrate from classes
+// http://localhost:3000/isolated/exercise/04-classes.js
 
 import * as React from 'react'
-import {useLocalStorageState} from '../utils'
 
-function Board({squares, onClick}) {
-  function renderSquare(i) {
-    return (
-      <button className="square" onClick={() => onClick(i)}>
-        {squares[i]}
-      </button>
-    )
+// If you'd rather practice refactoring a class component to a function
+// component with hooks, then go ahead and do this exercise.
+
+// 🦉 You've learned all the hooks you need to know to refactor this Board
+// component to hooks. So, let's make it happen!
+
+class Board extends React.Component {
+  state = {
+    squares:
+      JSON.parse(window.localStorage.getItem('squares')) || Array(9).fill(null),
   }
 
-  return (
-    <div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-    </div>
-  )
-}
-
-function Game() {
-  const [history, setHistory] = useLocalStorageState('tic-tac-toe:history', [
-    Array(9).fill(null),
-  ])
-
-  const [currentStep, setCurrentStep] = useLocalStorageState(
-    'tic-tac-toe:step',
-    0,
-  )
-
-  const currentSquares = history[currentStep]
-  const winner = calculateWinner(currentSquares)
-  const nextValue = calculateNextValue(currentSquares)
-  const status = calculateStatus(winner, currentSquares, nextValue)
-
-  function selectSquare(square) {
-    if (winner || currentSquares[square]) {
+  selectSquare(square) {
+    const {squares} = this.state
+    const nextValue = calculateNextValue(squares)
+    if (calculateWinner(squares) || squares[square]) {
       return
     }
+    const squaresCopy = [...squares]
+    squaresCopy[square] = nextValue
+    this.setState({squares: squaresCopy})
+  }
+  renderSquare = i => (
+    <button className="square" onClick={() => this.selectSquare(i)}>
+      {this.state.squares[i]}
+    </button>
+  )
 
-    const newHistory = history.slice(0, currentStep + 1)
-
-    const squares = [...currentSquares]
-
-    squares[square] = nextValue
-    setHistory([...newHistory, squares])
-    setCurrentStep(newHistory.length)
+  restart = () => {
+    this.setState({squares: Array(9).fill(null)})
+    this.updateLocalStorage()
   }
 
-  function restart() {
-    setHistory([Array(9).fill(null)])
-    setCurrentStep(0)
+  componentDidMount() {
+    this.updateLocalStorage()
   }
 
-  const moves = history.map((stepSquares, step) => {
-    const desc = step ? `Go to move #${step}` : 'Go to game start'
-    const isCurrentStep = step === currentStep
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.squares !== this.state.squares) {
+      this.updateLocalStorage()
+    }
+  }
+
+  updateLocalStorage() {
+    window.localStorage.setItem('squares', JSON.stringify(this.state.squares))
+  }
+
+  render() {
+    const {squares} = this.state
+    const nextValue = calculateNextValue(squares)
+    const winner = calculateWinner(squares)
+    let status = calculateStatus(winner, squares, nextValue)
+
     return (
-      <li key={step}>
-        <button disabled={isCurrentStep} onClick={() => setCurrentStep(step)}>
-          {desc} {isCurrentStep ? '(current)' : null}
-        </button>
-      </li>
-    )
-  })
-
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board onClick={selectSquare} squares={currentSquares} />
-        <button className="restart" onClick={restart}>
+      <div>
+        <div className="status">{status}</div>
+        <div className="board-row">
+          {this.renderSquare(0)}
+          {this.renderSquare(1)}
+          {this.renderSquare(2)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(3)}
+          {this.renderSquare(4)}
+          {this.renderSquare(5)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(6)}
+          {this.renderSquare(7)}
+          {this.renderSquare(8)}
+        </div>
+        <button className="restart" onClick={this.restart}>
           restart
         </button>
       </div>
-      <div className="game-info">
-        <div>{status}</div>
-        <ol>{moves}</ol>
+    )
+  }
+}
+
+function Game() {
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board />
       </div>
     </div>
   )
