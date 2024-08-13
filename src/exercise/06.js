@@ -1,6 +1,6 @@
 // useEffect: HTTP requests
-// 💯 handle errors
-// http://localhost:3000/isolated/final/06.extra-1.js
+// 💯 use a status
+// http://localhost:3000/isolated/final/06.extra-2.js
 
 import * as React from 'react'
 import {
@@ -11,6 +11,7 @@ import {
 } from '../pokemon'
 
 function PokemonInfo({pokemonName}) {
+  const [status, setStatus] = React.useState('idle')
   const [pokemon, setPokemon] = React.useState(null)
   const [error, setError] = React.useState(null)
 
@@ -18,28 +19,35 @@ function PokemonInfo({pokemonName}) {
     if (!pokemonName) {
       return
     }
-    setPokemon(null)
-    setError(null)
+    setStatus('pending')
     fetchPokemon(pokemonName).then(
-      pokemon => setPokemon(pokemon),
-      error => setError(error),
+      pokemon => {
+        setPokemon(pokemon)
+        setStatus('resolved')
+      },
+      error => {
+        setError(error)
+        setStatus('rejected')
+      },
     )
   }, [pokemonName])
 
-  if (error) {
+  if (status === 'idle') {
+    return 'Submit a pokemon'
+  } else if (status === 'pending') {
+    return <PokemonInfoFallback name={pokemonName} />
+  } else if (status === 'rejected') {
     return (
-      <div role="alert">
+      <div>
         There was an error:{' '}
         <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
       </div>
     )
-  } else if (!pokemonName) {
-    return 'Submit a pokemon'
-  } else if (!pokemon) {
-    return <PokemonInfoFallback name={pokemonName} />
-  } else {
+  } else if (status === 'resolved') {
     return <PokemonDataView pokemon={pokemon} />
   }
+
+  throw new Error('This should be impossible')
 }
 
 function App() {
