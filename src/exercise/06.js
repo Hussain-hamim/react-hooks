@@ -16,9 +16,12 @@ function PokemonInfo({pokemonName}) {
     if (!pokemonName) {
       return
     }
+
     setPokemon(null)
     fetchPokemon(pokemonName).then(pokemon => setPokemon(pokemon))
   }, [pokemonName])
+
+  console.log(pokemon)
 
   if (!pokemonName) {
     return 'Submit a pokemon'

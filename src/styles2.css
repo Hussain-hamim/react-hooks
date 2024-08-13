@@ -1,0 +1,8 @@
+.invisible-button {
+  text-decoration: underline;
+}
+
+.invisible-button:focus {
+  text-decoration: none;
+  color: rgb(34, 77, 195);
+}

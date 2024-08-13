@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {ErrorBoundary} from 'react-error-boundary'
+import './styles2.css'
 
 const formatDate = date =>
   `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')} ${String(
@@ -142,6 +143,7 @@ function PokemonForm({
   return (
     <form onSubmit={handleSubmit} className="pokemon-form">
       <label htmlFor="pokemonName-input">Pokemon Name</label>
+
       <small>
         Try{' '}
         <button
