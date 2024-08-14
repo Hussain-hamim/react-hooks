@@ -1,143 +1,71 @@
-import React, {useState, useEffect} from 'react'
+// useEffect: HTTP requests
+// 💯 use a status
+// http://localhost:3000/isolated/final/06.extra-2.js
 
-function PokemonForm() {
-  const [pokemonName, setPokemonName] = useState('')
+import * as React from 'react'
+import {
+  fetchPokemon,
+  PokemonInfoFallback,
+  PokemonForm,
+  PokemonDataView,
+} from '../pokemon'
 
-  React.useEffect(() => {}, [])
+function PokemonInfo({pokemonName}) {
+  const [status, setStatus] = React.useState('idle')
+  const [pokemon, setPokemon] = React.useState(null)
+  const [error, setError] = React.useState(null)
 
-  function handleChange(e) {
-    setPokemonName(e.target.value)
+  React.useEffect(() => {
+    if (!pokemonName) {
+      return
+    }
+    setStatus('pending')
+    fetchPokemon(pokemonName).then(
+      pokemon => {
+        setPokemon(pokemon)
+        setStatus('resolved')
+      },
+      error => {
+        setError(error)
+        setStatus('rejected')
+      },
+    )
+  }, [pokemonName])
+
+  if (status === 'idle') {
+    return 'Submit a pokemon'
+  } else if (status === 'pending') {
+    return <PokemonInfoFallback name={pokemonName} />
+  } else if (status === 'rejected') {
+    return (
+      <div>
+        There was an error:{' '}
+        <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      </div>
+    )
+  } else if (status === 'resolved') {
+    return <PokemonDataView pokemon={pokemon} />
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
-  }
+  throw new Error('This should be impossible')
+}
 
-  function handleSelect(newPokemonName) {
+function App() {
+  const [pokemonName, setPokemonName] = React.useState('')
+
+  function handleSubmit(newPokemonName) {
     setPokemonName(newPokemonName)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="pokemon-form">
-      <label htmlFor="pokemonName-input">Pokemon Name</label>
-
-      <small>
-        Try{' '}
-        <button
-          className="invisible-button"
-          type="button"
-          onClick={() => handleSelect('pikachu')}
-        >
-          "pikachu"
-        </button>
-        {', '}
-        <button
-          className="invisible-button"
-          type="button"
-          onClick={() => handleSelect('charizard')}
-        >
-          "charizard"
-        </button>
-        {', or '}
-        <button
-          className="invisible-button"
-          type="button"
-          onClick={() => handleSelect('mew')}
-        >
-          "mew"
-        </button>
-      </small>
-      <div>
-        <input
-          className="pokemonName-input"
-          id="pokemonName-input"
-          name="pokemonName"
-          placeholder="Pokemon Name..."
-          value={pokemonName}
-          onChange={handleChange}
-        />
-        <button type="submit" disabled={!pokemonName.length}>
-          Submit
-        </button>
+    <div className="pokemon-info-app">
+      <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
+      <hr />
+      <div className="pokemon-info">
+        <PokemonInfo pokemonName={pokemonName} />
       </div>
-    </form>
+    </div>
   )
 }
 
-function PokemonList() {
-  const [pokemons, setPokemons] = useState([])
-
-  useEffect(() => {
-    async function fetchPokemons() {
-      const query = `
-        {
-          pokemons(first: 10) {
-            id
-        number
-        name
-        image
-        attacks {
-          special {
-            name
-            type
-            damage
-          }
-        }
-          }
-        }
-      `
-
-      const response = await fetch('https://graphql-pokemon2.vercel.app', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: query,
-        }),
-      })
-
-      const result = await response.json()
-      setPokemons(result.data.pokemons)
-    }
-
-    fetchPokemons()
-  }, [])
-
-  return (
-    <>
-      <div>
-        <PokemonForm />
-      </div>
-      {pokemons.map(pokemon => {
-        return (
-          <div className="pokemon-info__img-wrapper">
-            <img src={pokemon.image} alt={pokemon.name} />
-
-            <section>
-              <h2>
-                {pokemon.name}
-                <sup>{pokemon.number}</sup>
-              </h2>
-            </section>
-
-            <section>
-              <ul>
-                {pokemon.attacks.special.map(attack => (
-                  <li key={attack.name}>
-                    <label>{attack.name}</label>:{' '}
-                    <span>
-                      {attack.damage} <small>({attack.type})</small>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-        )
-      })}
-    </>
-  )
-}
-
-export default PokemonList
+export default App
