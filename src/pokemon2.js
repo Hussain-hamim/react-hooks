@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {ErrorBoundary} from 'react-error-boundary'
-import './styles2.css'
+// import './styles2.css'
 
 // the delay argument is for faking things out a bit
 function fetchPokemon(first, delay = 1500) {

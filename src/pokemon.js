@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {ErrorBoundary} from 'react-error-boundary'
-import './styles2.css'
+// import './styles2.css'
 
 const formatDate = date =>
   `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')} ${String(

@@ -1,71 +1,76 @@
-// useEffect: HTTP requests
-// 💯 use a status
-// http://localhost:3000/isolated/final/06.extra-2.js
+import React, {useState, useEffect} from 'react'
 
-import * as React from 'react'
-import {
-  fetchPokemon,
-  PokemonInfoFallback,
-  PokemonForm,
-  PokemonDataView,
-} from '../pokemon'
+function PokemonList() {
+  const [pokemons, setPokemons] = useState([])
 
-function PokemonInfo({pokemonName}) {
-  const [status, setStatus] = React.useState('idle')
-  const [pokemon, setPokemon] = React.useState(null)
-  const [error, setError] = React.useState(null)
+  useEffect(() => {
+    async function fetchPokemons() {
+      const query = `
+        {
+          pokemons(first: 10) {
+            id
+        number
+        name
+        image
+        attacks {
+          special {
+            name
+            type
+            damage
+          }
+        }
+          }
+        }
+      `
 
-  React.useEffect(() => {
-    if (!pokemonName) {
-      return
+      const response = await fetch('https://graphql-pokemon2.vercel.app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: query,
+        }),
+      })
+
+      const result = await response.json()
+      setPokemons(result.data.pokemons)
     }
-    setStatus('pending')
-    fetchPokemon(pokemonName).then(
-      pokemon => {
-        setPokemon(pokemon)
-        setStatus('resolved')
-      },
-      error => {
-        setError(error)
-        setStatus('rejected')
-      },
-    )
-  }, [pokemonName])
 
-  if (status === 'idle') {
-    return 'Submit a pokemon'
-  } else if (status === 'pending') {
-    return <PokemonInfoFallback name={pokemonName} />
-  } else if (status === 'rejected') {
-    return (
-      <div>
-        There was an error:{' '}
-        <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
-      </div>
-    )
-  } else if (status === 'resolved') {
-    return <PokemonDataView pokemon={pokemon} />
-  }
-
-  throw new Error('This should be impossible')
-}
-
-function App() {
-  const [pokemonName, setPokemonName] = React.useState('')
-
-  function handleSubmit(newPokemonName) {
-    setPokemonName(newPokemonName)
-  }
+    fetchPokemons()
+  }, [])
 
   return (
-    <div className="pokemon-info-app">
-      <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
-      <hr />
-      <div className="pokemon-info">
-        <PokemonInfo pokemonName={pokemonName} />
-      </div>
-    </div>
+    <>
+      {pokemons.map(pokemon => {
+        return (
+          <div className="pokemon-info__img-wrapper">
+            <img src={pokemon.image} alt={pokemon.name} />
+
+            <section>
+              <h2>
+                {pokemon.name}
+                <sup>{pokemon.number}</sup>
+              </h2>
+            </section>
+
+            <section>
+              <ul>
+                {pokemon.attacks.special.map(attack => (
+                  <li key={attack.name}>
+                    <label>{attack.name}</label>:{' '}
+                    <span>
+                      {attack.damage} <small>({attack.type})</small>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        )
+      })}
+    </>
   )
 }
 
-export default App
+export default PokemonList
